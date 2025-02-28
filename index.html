@@ -128,13 +128,17 @@
         }
 
         function requestNotificationPermission() {
-            if (Notification.permission !== "granted") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        alert("تم تفعيل الإشعارات بنجاح!");
-                    }
-                });
-            }
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    alert("تم تفعيل الإشعارات بنجاح!");
+                } else if (permission === "denied") {
+                    alert("تم رفض الإذن للإشعارات. يرجى تمكينه من إعدادات المتصفح.");
+                } else {
+                    alert("لم يتم تحديد الإذن للإشعارات.");
+                }
+            }).catch(error => {
+                alert("حدث خطأ أثناء طلب الإذن: " + error);
+            });
         }
         
         function openSettings() {
@@ -146,9 +150,6 @@
         }
         
         window.onload = function() {
-            if (Notification.permission !== "granted") {
-                requestNotificationPermission();
-            }
             getPrayerTimes();
         };
     </script>
