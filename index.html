@@ -94,7 +94,7 @@
                     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&lang=ar`)
                         .then(response => response.json())
                         .then(data => {
-                            document.getElementById("address").textContent = `الموقع: ${data.address.city || data.address.town || data.address.village}, ${data.address.state}, ${data.address.country}`;
+                            document.getElementById("address").textContent = `الموقع: ${data.address.village || data.address.town ||data.address.city }, ${data.address.state}, ${data.address.country}`;
                         })
                         .catch(() => {
                             document.getElementById("address").textContent = "تعذر جلب العنوان";
