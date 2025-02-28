@@ -161,8 +161,9 @@
         }
         
         window.onload = function() {
-            if (Notification.permission === "default") {
+            if (localStorage.getItem("notificationsRequested") !== "true") {
                 requestNotificationPermission();
+                localStorage.setItem("notificationsRequested", "true");
             }
             displayPrayerTimes();
             getPrayerTimes();
