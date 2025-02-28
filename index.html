@@ -90,6 +90,15 @@
                             displayPrayerTimes();
                             checkPrayerTimes();
                         });
+                    
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&lang=ar`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById("address").textContent = `الموقع: ${data.address.city || data.address.town || data.address.village}, ${data.address.state}, ${data.address.country}`;
+                        })
+                        .catch(() => {
+                            document.getElementById("address").textContent = "تعذر جلب العنوان";
+                        });
                 });
             }
         }
@@ -116,19 +125,6 @@
             }
         }
         
-        function checkPrayerTimes() {
-            setInterval(() => {
-                const now = new Date();
-                const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-                for (let prayer in prayerTimings) {
-                    if (prayerNames[prayer] && prayerTimings[prayer] === currentTime) {
-                        showNotification(prayerNames[prayer]);
-                        playAzan();
-                    }
-                }
-            }, 60000);
-        }
-        
         function requestNotificationPermission() {
             if (Notification.permission === "default") {
                 Notification.requestPermission().then(permission => {
@@ -136,27 +132,6 @@
                         alert("تم تفعيل الإشعارات بنجاح!");
                     }
                 });
-            }
-        }
-        
-        function showNotification(prayerName) {
-            if (Notification.permission === "granted") {
-                new Notification("وقت الصلاة", {
-                    body: `حان الآن وقت ${prayerName}`,
-                    icon: "https://cdn-icons-png.flaticon.com/512/3176/3176366.png"
-                });
-            }
-        }
-        
-        function playAzan() {
-            document.getElementById("azan-audio").play();
-        }
-        
-        function openSettings() {
-            const newAzan = prompt("أدخل رابط صوت الأذان الجديد:", "https://www.islamcan.com/audio/adhan/azan1.mp3");
-            if (newAzan) {
-                document.getElementById("azan-audio").src = newAzan;
-                alert("تم تحديث صوت الأذان!");
             }
         }
         
