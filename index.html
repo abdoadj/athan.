@@ -134,14 +134,8 @@
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
                         alert("تم تفعيل الإشعارات بنجاح!");
-                    } else {
-                        alert("تم رفض الإذن للإشعارات.");
                     }
                 });
-            } else if (Notification.permission === "granted") {
-                alert("الإشعارات مفعلة بالفعل!");
-            } else {
-                alert("تم رفض الإذن مسبقًا. يرجى السماح يدويًا من إعدادات المتصفح.");
             }
         }
         
@@ -167,7 +161,9 @@
         }
         
         window.onload = function() {
-            requestNotificationPermission();
+            if (Notification.permission === "default") {
+                requestNotificationPermission();
+            }
             displayPrayerTimes();
             getPrayerTimes();
         };
