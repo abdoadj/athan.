@@ -88,13 +88,15 @@
                             prayerTimings = timings;
                             localStorage.setItem("prayerTimings", JSON.stringify(prayerTimings));
                             displayPrayerTimes();
-                            checkPrayerTimes();
                         });
                     
                     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&lang=ar`)
                         .then(response => response.json())
                         .then(data => {
-                            document.getElementById("address").textContent = `الموقع: ${data.address.city || data.address.town || data.address.village}, ${data.address.state}, ${data.address.country}`;
+                            const city = data.address.city || data.address.town || data.address.village || "غير معروف";
+                            const state = data.address.state || "غير معروف";
+                            const country = data.address.country || "غير معروف";
+                            document.getElementById("address").textContent = `الموقع: ${city}, ${state}, ${country}`;
                         })
                         .catch(() => {
                             document.getElementById("address").textContent = "تعذر جلب العنوان";
@@ -133,6 +135,10 @@
                     }
                 });
             }
+        }
+        
+        function openSettings() {
+            alert("هذه هي صفحة الإعدادات. يمكنك تخصيص الإشعارات وتعديل المؤذن لاحقًا!");
         }
         
         window.onload = function() {
