@@ -72,7 +72,7 @@
             Maghrib: "المغرب",
             Isha: "العشاء",
         };
-        let prayerTimings = {};
+        let prayerTimings = JSON.parse(localStorage.getItem("prayerTimings")) || {};
         
         function getPrayerTimes() {
             if (navigator.geolocation) {
@@ -86,40 +86,33 @@
                             document.getElementById("location").textContent = `الموقع: خط العرض ${lat.toFixed(2)}, خط الطول ${lon.toFixed(2)}`;
                             const timings = data.data.timings;
                             prayerTimings = timings;
-                            const prayerTimesList = document.getElementById("prayer-times");
-                            prayerTimesList.innerHTML = "";
-                            for (let prayer in timings) {
-                                if (prayerNames[prayer]) {
-                                    let li = document.createElement("li");
-                                    let span = document.createElement("span");
-                                    span.textContent = `${prayerNames[prayer]}: `;
-                                    let input = document.createElement("input");
-                                    input.type = "time";
-                                    input.value = timings[prayer];
-                                    input.onchange = function() {
-                                        prayerTimings[prayer] = input.value;
-                                    };
-                                    li.appendChild(span);
-                                    li.appendChild(input);
-                                    prayerTimesList.appendChild(li);
-                                }
-                            }
+                            localStorage.setItem("prayerTimings", JSON.stringify(prayerTimings));
+                            displayPrayerTimes();
                             checkPrayerTimes();
                         });
-                    
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&lang=ar`)
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById("address").textContent = `الموقع: ${data.address.country}, ${data.address.state || ''}, ${data.address.city || data.address.town || data.address.village || ''}`;
-                        })
-                        .catch(() => {
-                            document.getElementById("address").textContent = "تعذر جلب العنوان";
-                        });
-                }, () => {
-                    alert("فشل في تحديد الموقع، يرجى تمكين خدمة تحديد الموقع");
                 });
-            } else {
-                alert("الموقع غير مدعوم على هذا الجهاز.");
+            }
+        }
+        
+        function displayPrayerTimes() {
+            const prayerTimesList = document.getElementById("prayer-times");
+            prayerTimesList.innerHTML = "";
+            for (let prayer in prayerTimings) {
+                if (prayerNames[prayer]) {
+                    let li = document.createElement("li");
+                    let span = document.createElement("span");
+                    span.textContent = `${prayerNames[prayer]}: `;
+                    let input = document.createElement("input");
+                    input.type = "time";
+                    input.value = prayerTimings[prayer];
+                    input.onchange = function() {
+                        prayerTimings[prayer] = input.value;
+                        localStorage.setItem("prayerTimings", JSON.stringify(prayerTimings));
+                    };
+                    li.appendChild(span);
+                    li.appendChild(input);
+                    prayerTimesList.appendChild(li);
+                }
             }
         }
         
@@ -137,13 +130,19 @@
         }
         
         function requestNotificationPermission() {
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    alert("تم تفعيل الإشعارات بنجاح!");
-                } else {
-                    alert("تم رفض الإذن للإشعارات.");
-                }
-            });
+            if (Notification.permission === "default") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        alert("تم تفعيل الإشعارات بنجاح!");
+                    } else {
+                        alert("تم رفض الإذن للإشعارات.");
+                    }
+                });
+            } else if (Notification.permission === "granted") {
+                alert("الإشعارات مفعلة بالفعل!");
+            } else {
+                alert("تم رفض الإذن مسبقًا. يرجى السماح يدويًا من إعدادات المتصفح.");
+            }
         }
         
         function showNotification(prayerName) {
@@ -169,6 +168,7 @@
         
         window.onload = function() {
             requestNotificationPermission();
+            displayPrayerTimes();
             getPrayerTimes();
         };
     </script>
